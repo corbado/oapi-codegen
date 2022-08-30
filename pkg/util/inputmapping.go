@@ -2,6 +2,8 @@ package util
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"strings"
 )
 
@@ -26,6 +28,41 @@ func ParseCommandlineMap(src string) (map[string]string, error) {
 		result[key] = value
 	}
 	return result, nil
+}
+
+//Import Mappings can be expressed a filepath, where the specific .yml files are
+//located with their corresponding package names as parent directory
+//e.g. /home/user/mappings/github.com/owner/public.yml
+func LoadImportMappingsRecursively(src string) (map[string]string, error) {
+	result := make(map[string]string)
+
+	packages, err := ioutil.ReadDir(src)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, p := range packages {
+		fmt.Println(p.Name(), p.IsDir())
+		if !p.IsDir() {
+			continue
+		} 
+
+		files, err := ioutil.ReadDir(filepath.Join(src, p.Name()))
+
+		for _, file := range files {
+			fmt.Println(file.Name(), file.IsDir())
+
+			if file.IsDir() {
+				continue
+			}
+			
+			if strings.HasSuffix(file.Name(), ".yml") {
+				key := file.Name()
+				value := filepath.Join(src, p.Name())
+
+				result[key] = value
+			}		
+	}
 }
 
 // ParseCommandLineList parses comma separated string lists which are passed

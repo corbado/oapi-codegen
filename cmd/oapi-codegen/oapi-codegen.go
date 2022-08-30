@@ -41,6 +41,10 @@ var (
 	flagPrintVersion   bool
 	flagPackageName    string
 
+	flagDynamic    bool
+	flagImportPath string
+	flagOutputPath string
+
 	// The options below are deprecated, and they will be removed in a future
 	// release. Please use the new config file format.
 	flagGenerate           string
@@ -82,6 +86,10 @@ func main() {
 	flag.StringVar(&flagConfigFile, "config", "", "a YAML config file that controls oapi-codegen behavior")
 	flag.BoolVar(&flagPrintVersion, "version", false, "when specified, print version and exit")
 	flag.StringVar(&flagPackageName, "package", "", "The package name for generated code")
+
+	flag.BoolVar(&flagDynamic, "dynamic", false, "Whether to generate code via dynamic path resolving")
+	flag.StringVar(&flagImportPath, "import-path", "", "The directory for the location of import mapping packages")
+	flag.StringVar(&flagOutputPath, "output-path", "", "The output path for generated code")
 
 	// All flags below are deprecated, and will be removed in a future release. Please do not
 	// update their behavior.
@@ -165,6 +173,41 @@ func main() {
 		return
 	}
 
+	if flagDynamic {
+
+		if flagImportPath == "" {
+			errExit("import-path is required when dynamic is set")
+		}
+
+		// files, err := ioutil.ReadDir(flag.Arg(0))
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+
+		// for _, file := range files {
+		// 	fmt.Println(file.Name(), file.IsDir())
+		// 	if file.IsDir() {
+		// 		continue
+		// 	}
+
+		// 	swagger, err := util.LoadSwagger(filepath.Join(flag.Arg(0), file.Name()))
+		// 	if err != nil {
+		// 		errExit("error loading swagger spec in %s\n: %s", flag.Arg(0), err)
+		// 	}
+
+		// 	code, err := codegen.Generate(swagger, opts.Configuration)
+		// 	if err != nil {
+		// 		errExit("error generating code: %s\n", err)
+		// 	}
+
+		// 	//CHANGE FILE PATH TO A PARAMETER
+		// 	err = ioutil.WriteFile(filepath.Join(flagOutputPath, fmt.Sprintf("%s.gen.go", flagPackageName)), []byte(code), 0644)
+		// 	if err != nil {
+		// 		errExit("error writing generated code to file: %s", err)
+		// 	}
+		// }
+	}
+
 	swagger, err := util.LoadSwagger(flag.Arg(0))
 	if err != nil {
 		errExit("error loading swagger spec in %s\n: %s", flag.Arg(0), err)
@@ -183,6 +226,7 @@ func main() {
 	} else {
 		fmt.Print(code)
 	}
+
 }
 
 func loadTemplateOverrides(templatesDir string) (map[string]string, error) {
