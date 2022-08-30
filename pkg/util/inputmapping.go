@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"path/filepath"
 	"strings"
 )
 
@@ -30,9 +31,9 @@ func ParseCommandlineMap(src string) (map[string]string, error) {
 	return result, nil
 }
 
-//Import Mappings can be expressed a filepath, where the specific .yml files are
-//located with their corresponding package names as parent directory
-//e.g. /home/user/mappings/github.com/owner/public.yml
+// Import Mappings can be expressed a filepath, where the specific .yml files are
+// located with their corresponding package names as parent directory
+// e.g. /home/user/mappings/github.com/owner/public.yml
 func LoadImportMappingsRecursively(src string) (map[string]string, error) {
 	result := make(map[string]string)
 
@@ -45,7 +46,7 @@ func LoadImportMappingsRecursively(src string) (map[string]string, error) {
 		fmt.Println(p.Name(), p.IsDir())
 		if !p.IsDir() {
 			continue
-		} 
+		}
 
 		files, err := ioutil.ReadDir(filepath.Join(src, p.Name()))
 
@@ -55,14 +56,16 @@ func LoadImportMappingsRecursively(src string) (map[string]string, error) {
 			if file.IsDir() {
 				continue
 			}
-			
+
 			if strings.HasSuffix(file.Name(), ".yml") {
 				key := file.Name()
 				value := filepath.Join(src, p.Name())
 
 				result[key] = value
-			}		
+			}
+		}
 	}
+	return result, nil
 }
 
 // ParseCommandLineList parses comma separated string lists which are passed
