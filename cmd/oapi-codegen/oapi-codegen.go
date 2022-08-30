@@ -17,15 +17,17 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"runtime/debug"
 	"strings"
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/deepmap/oapi-codegen/pkg/codegen"
-	"github.com/deepmap/oapi-codegen/pkg/util"
+	"github.com/corbado/oapi-codegen/pkg/codegen"
+	"github.com/corbado/oapi-codegen/pkg/util"
 )
 
 func errExit(format string, args ...interface{}) {
@@ -41,9 +43,8 @@ var (
 	flagPrintVersion   bool
 	flagPackageName    string
 
-	flagDynamic    bool
-	flagImportPath string
-	flagOutputPath string
+	flagDynamic   bool
+	flagOutputDir string
 
 	// The options below are deprecated, and they will be removed in a future
 	// release. Please use the new config file format.
@@ -88,8 +89,7 @@ func main() {
 	flag.StringVar(&flagPackageName, "package", "", "The package name for generated code")
 
 	flag.BoolVar(&flagDynamic, "dynamic", false, "Whether to generate code via dynamic path resolving")
-	flag.StringVar(&flagImportPath, "import-path", "", "The directory for the location of import mapping packages")
-	flag.StringVar(&flagOutputPath, "output-path", "", "The output path for generated code")
+	flag.StringVar(&flagOutputDir, "--output-dir", "", "The output directory for all generated code files")
 
 	// All flags below are deprecated, and will be removed in a future release. Please do not
 	// update their behavior.
@@ -175,37 +175,57 @@ func main() {
 
 	if flagDynamic {
 
-		if flagImportPath == "" {
-			errExit("import-path is required when dynamic is set")
+		importMapping := make(map[string]string)
+
+		parent := filepath.Dir(flag.Arg(0))
+
+		dirs, err := ioutil.ReadDir(parent)
+		if err != nil {
+			log.Fatal(err)
 		}
 
-		// files, err := ioutil.ReadDir(flag.Arg(0))
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
+		for _, dir := range dirs {
+			fmt.Println(dir.Name(), dir.IsDir())
+			if !dir.IsDir() {
+				continue
+			}
 
-		// for _, file := range files {
-		// 	fmt.Println(file.Name(), file.IsDir())
-		// 	if file.IsDir() {
-		// 		continue
-		// 	}
+			files, err := ioutil.ReadDir(filepath.Join(parent, dir.Name()))
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		// 	swagger, err := util.LoadSwagger(filepath.Join(flag.Arg(0), file.Name()))
-		// 	if err != nil {
-		// 		errExit("error loading swagger spec in %s\n: %s", flag.Arg(0), err)
-		// 	}
+			for _, file := range files {
+				if filepath.Ext(file.Name()) != ".yaml" || filepath.Ext(file.Name()) != ".yml" {
+					continue
+				}
 
-		// 	code, err := codegen.Generate(swagger, opts.Configuration)
-		// 	if err != nil {
-		// 		errExit("error generating code: %s\n", err)
-		// 	}
+				swagger, err := util.LoadSwagger(dir.Name())
+				if err != nil {
+					errExit("error loading swagger spec in %s\n: %s", flag.Arg(0), err)
+				}
 
-		// 	//CHANGE FILE PATH TO A PARAMETER
-		// 	err = ioutil.WriteFile(filepath.Join(flagOutputPath, fmt.Sprintf("%s.gen.go", flagPackageName)), []byte(code), 0644)
-		// 	if err != nil {
-		// 		errExit("error writing generated code to file: %s", err)
-		// 	}
-		// }
+				//Generate code with default configurations, check later if the behavior is correct
+				code, err := codegen.Generate(swagger, opts.UpdateDefaults())
+				if err != nil {
+					errExit("error generating code: %s\n", err)
+				}
+
+				fileLoc := filepath.Join(flagOutputDir, dir.Name(), "entities.gen.go")
+
+				err = ioutil.WriteFile(fileLoc, []byte(code), 0644)
+				if err != nil {
+					errExit("error writing generated code to file: %s", err)
+				}
+
+				mappingKey := file.Name()
+				mappingValue := fileLoc
+
+				importMapping[mappingKey] = mappingValue
+			}
+		}
+
+		opts.ImportMapping = importMapping
 	}
 
 	swagger, err := util.LoadSwagger(flag.Arg(0))
@@ -335,6 +355,13 @@ func updateOldConfigFromFlags(cfg oldConfiguration) oldConfiguration {
 			errExit("error parsing import-mapping: %s\n", err)
 		}
 	}
+	// if cfg.ImportMapping == nil && flagDynamic {
+	// 	var err error
+	// 	cfg.ImportMapping, err = util.LoadImportMappingsRecursively(flagImportPath)
+	// 	if err != nil {
+	// 		errExit("error loading import-mappings: %s\n", err)
+	// 	}
+	// }
 	if cfg.ExcludeSchemas == nil {
 		cfg.ExcludeSchemas = util.ParseCommandLineList(flagExcludeSchemas)
 	}
