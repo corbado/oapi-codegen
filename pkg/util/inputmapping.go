@@ -49,6 +49,9 @@ func LoadImportMappingsRecursively(src string) (map[string]string, error) {
 		}
 
 		files, err := ioutil.ReadDir(filepath.Join(src, p.Name()))
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		for _, file := range files {
 			fmt.Println(file.Name(), file.IsDir())
