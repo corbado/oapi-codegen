@@ -358,7 +358,8 @@ func refPathToGoType(refPath string, local bool, outputDir string) (string, erro
 			}
 			return fmt.Sprintf("%s.%s", newImportMap[remoteComponent].Name, goType), nil
 		}
-		return "", fmt.Errorf("unrecognized external reference '%s'; please provide the known import for this reference using option --import-mapping", remoteComponent)
+		fmt.Println("remoteComponent", remoteComponent)
+		// return "", fmt.Errorf("unrecognized external reference '%s'; please provide the known import for this reference using option --import-mapping", remoteComponent)
 	} else {
 		goType, err := refPathToGoType("#"+flatComponent, false, outputDir)
 		if err != nil {
@@ -368,7 +369,7 @@ func refPathToGoType(refPath string, local bool, outputDir string) (string, erro
 	}
 }
 
-// IsGoTypeReference takes a $ref value and checks if it has link to go type.
+// unrecognized external reference takes a $ref value and checks if it has link to go type.
 // #/components/schemas/Foo                     -> true
 // ./local/file.yml#/components/parameters/Bar  -> true
 // ./local/file.yml                             -> false

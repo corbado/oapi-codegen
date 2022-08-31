@@ -175,7 +175,7 @@ func DescribeParameters(params openapi3.Parameters, path []string) ([]ParameterD
 		// name as the type. $ref: "#/components/schemas/custom_type" becomes
 		// "CustomType".
 		if IsGoTypeReference(paramOrRef.Ref) {
-			goType, err := RefPathToGoType(paramOrRef.Ref)
+			goType, err := RefPathToGoType(paramOrRef.Ref, "")
 			if err != nil {
 				return nil, fmt.Errorf("error dereferencing (%s) for param (%s): %s",
 					paramOrRef.Ref, param.Name, err)
@@ -314,7 +314,7 @@ func (o *OperationDefinition) GetResponseTypeDefinitions() ([]ResponseTypeDefini
 						ContentTypeName: contentTypeName,
 					}
 					if IsGoTypeReference(contentType.Schema.Ref) {
-						refType, err := RefPathToGoType(contentType.Schema.Ref)
+						refType, err := RefPathToGoType(contentType.Schema.Ref, "")
 						if err != nil {
 							return nil, fmt.Errorf("error dereferencing response Ref: %w", err)
 						}
@@ -652,7 +652,7 @@ func GenerateBodyDefinitions(operationID string, bodyOrRef *openapi3.RequestBody
 		// If the body is a pre-defined type
 		if IsGoTypeReference(content.Schema.Ref) {
 			// Convert the reference path to Go type
-			refType, err := RefPathToGoType(content.Schema.Ref)
+			refType, err := RefPathToGoType(content.Schema.Ref, "")
 			if err != nil {
 				return nil, nil, fmt.Errorf("error turning reference (%s) into a Go type: %w", content.Schema.Ref, err)
 			}
@@ -765,7 +765,7 @@ func GenerateResponseDefinitions(operationID string, responses openapi3.Response
 		}
 		if IsGoTypeReference(responseOrRef.Ref) {
 			// Convert the reference path to Go type
-			refType, err := RefPathToGoType(responseOrRef.Ref)
+			refType, err := RefPathToGoType(responseOrRef.Ref, "")
 			if err != nil {
 				return nil, fmt.Errorf("error turning reference (%s) into a Go type: %w", responseOrRef.Ref, err)
 			}
