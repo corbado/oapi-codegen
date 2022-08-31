@@ -359,7 +359,7 @@ func refPathToGoType(refPath string, local bool, outputDir string) (string, erro
 			return fmt.Sprintf("%s.%s", newImportMap[remoteComponent].Name, goType), nil
 		}
 		fmt.Println("remoteComponent", remoteComponent)
-		// return "", fmt.Errorf("unrecognized external reference '%s'; please provide the known import for this reference using option --import-mapping", remoteComponent)
+		return "", fmt.Errorf("unrecognized external !!!! reference '%s'; please provide the known import for this reference using option --import-mapping", remoteComponent)
 	} else {
 		goType, err := refPathToGoType("#"+flatComponent, false, outputDir)
 		if err != nil {

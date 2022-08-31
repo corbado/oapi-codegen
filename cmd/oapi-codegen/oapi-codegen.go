@@ -79,6 +79,8 @@ type oldConfiguration struct {
 }
 
 func main() {
+	fmt.Println("USING NEW VERSION!!!")
+
 	flag.StringVar(&flagOutputFile, "o", "", "Where to output generated code, stdout is default")
 	flag.BoolVar(&flagOldConfigStyle, "old-config-style", false, "whether to use the older style config file format")
 	flag.BoolVar(&flagOutputConfig, "output-config", false, "when true, outputs a configuration file for oapi-codegen using current settings")
