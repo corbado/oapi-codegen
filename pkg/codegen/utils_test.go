@@ -199,7 +199,7 @@ func TestRefPathToGoType(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			goType, err := RefPathToGoType(tc.path)
+			goType, err := RefPathToGoType(tc.path, "")
 			if tc.goType == "" {
 				assert.Error(t, err)
 				return

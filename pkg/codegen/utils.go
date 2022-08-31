@@ -16,7 +16,6 @@ package codegen
 import (
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -29,7 +28,6 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/corbado/oapi-codegen/pkg/util"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
@@ -297,21 +295,26 @@ func refPathToGoType(refPath string, local bool, outputDir string) (string, erro
 		}
 
 		if !fileExists {
-			swagger, err := util.LoadSwagger(remoteComponent)
-			if err != nil {
-				errExit("error loading swagger spec in %s\n: %s", flag.Arg(0), err)
-			}
 
-			//Generate code with default configurations, check later if the behavior is correct
-			code, err := Generate(swagger, globalState.options, outputDir)
-			if err != nil {
-				errExit("error generating code: %s\n", err)
-			}
+			// if outputDir == "" {
+			// 	return "", fmt.Errorf("unsupported reference: %s, cyclical generation is called", refPath)
+			// }
 
-			err = ioutil.WriteFile(filepath.Join(outputDir, strings.TrimSuffix(remoteComponent, filepath.Ext(remoteComponent)), "entities.gen.go"), []byte(code), 0644)
-			if err != nil {
-				errExit("error writing generated code to file: %s", err)
-			}
+			// swagger, err := util.LoadSwagger(remoteComponent)
+			// if err != nil {
+			// 	errExit("error loading swagger spec in %s\n: %s", flag.Arg(0), err)
+			// }
+
+			// //Generate code with default configurations, check later if the behavior is correct
+			// code, err := Generate(swagger, globalState.options, outputDir)
+			// if err != nil {
+			// 	errExit("error generating code: %s\n", err)
+			// }
+
+			// err = ioutil.WriteFile(filepath.Join(outputDir, strings.TrimSuffix(remoteComponent, filepath.Ext(remoteComponent)), "entities.gen.go"), []byte(code), 0644)
+			// if err != nil {
+			// 	errExit("error writing generated code to file: %s", err)
+			// }
 
 			importMapString := map[string]string{
 				remoteComponent: filepath.Join(outputDir, strings.TrimSuffix(remoteComponent, filepath.Ext(remoteComponent))),
@@ -357,8 +360,8 @@ func refPathToGoType(refPath string, local bool, outputDir string) (string, erro
 			}
 			return fmt.Sprintf("%s.%s", newImportMap[remoteComponent].Name, goType), nil
 		}
-		fmt.Println("remoteComponent", remoteComponent)
-		return "", fmt.Errorf("unrecognized external !!!! reference '%s'; please provide the known import for this reference using option --import-mapping", remoteComponent)
+		// fmt.Println("remoteComponent", remoteComponent)
+		// return "", fmt.Errorf("unrecognized external !!!! reference '%s'; please provide the known import for this reference using option --import-mapping", remoteComponent)
 	} else {
 		goType, err := refPathToGoType("#"+flatComponent, false, outputDir)
 		if err != nil {

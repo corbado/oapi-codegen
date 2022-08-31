@@ -16,7 +16,7 @@ func mergeSchemas_V1(allOf []*openapi3.SchemaRef, path []string) (Schema, error)
 		var refType string
 		var err error
 		if IsGoTypeReference(ref) {
-			refType, err = RefPathToGoType(ref)
+			refType, err = RefPathToGoType(ref, "")
 			if err != nil {
 				return Schema{}, fmt.Errorf("error converting reference path to a go type: %w", err)
 			}
@@ -75,7 +75,7 @@ func GenStructFromAllOf(allOf []*openapi3.SchemaRef, path []string) (string, err
 			//   InlinedMember
 			//   ...
 			// }
-			goType, err := RefPathToGoType(ref)
+			goType, err := RefPathToGoType(ref, "")
 			if err != nil {
 				return "", err
 			}
