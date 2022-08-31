@@ -17,10 +17,8 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
-	"path/filepath"
 	"runtime/debug"
 	"strings"
 
@@ -173,67 +171,12 @@ func main() {
 		return
 	}
 
-	if flagDynamic {
-
-		importMapping := make(map[string]string)
-
-		parent := filepath.Dir(flag.Arg(0))
-
-		dirs, err := ioutil.ReadDir(parent)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		for _, dir := range dirs {
-			fmt.Println(dir.Name(), dir.IsDir())
-			if !dir.IsDir() {
-				continue
-			}
-
-			files, err := ioutil.ReadDir(filepath.Join(parent, dir.Name()))
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			for _, file := range files {
-				if filepath.Ext(file.Name()) != ".yaml" || filepath.Ext(file.Name()) != ".yml" {
-					continue
-				}
-
-				swagger, err := util.LoadSwagger(dir.Name())
-				if err != nil {
-					errExit("error loading swagger spec in %s\n: %s", flag.Arg(0), err)
-				}
-
-				//Generate code with default configurations, check later if the behavior is correct
-				code, err := codegen.Generate(swagger, opts.UpdateDefaults())
-				if err != nil {
-					errExit("error generating code: %s\n", err)
-				}
-
-				fileLoc := filepath.Join(flagOutputDir, dir.Name(), "entities.gen.go")
-
-				err = ioutil.WriteFile(fileLoc, []byte(code), 0644)
-				if err != nil {
-					errExit("error writing generated code to file: %s", err)
-				}
-
-				mappingKey := file.Name()
-				mappingValue := fileLoc
-
-				importMapping[mappingKey] = mappingValue
-			}
-		}
-
-		opts.ImportMapping = importMapping
-	}
-
 	swagger, err := util.LoadSwagger(flag.Arg(0))
 	if err != nil {
 		errExit("error loading swagger spec in %s\n: %s", flag.Arg(0), err)
 	}
 
-	code, err := codegen.Generate(swagger, opts.Configuration)
+	code, err := codegen.Generate(swagger, opts.Configuration, flagOutputDir)
 	if err != nil {
 		errExit("error generating code: %s\n", err)
 	}

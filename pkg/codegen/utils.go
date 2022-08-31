@@ -15,14 +15,22 @@ package codegen
 
 import (
 	"encoding/json"
+	"errors"
+	"flag"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/url"
+	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"unicode"
 
+	"github.com/corbado/oapi-codegen/pkg/codegen"
+	"github.com/corbado/oapi-codegen/pkg/util"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
@@ -30,6 +38,11 @@ var pathParamRE *regexp.Regexp
 
 func init() {
 	pathParamRE = regexp.MustCompile("{[.;?]?([^{}*]+)\\*?}")
+}
+
+func errExit(format string, args ...interface{}) {
+	_, _ = fmt.Fprintf(os.Stderr, format, args...)
+	os.Exit(1)
 }
 
 // Uppercase the first character in a string. This assumes UTF-8, so we have
@@ -224,12 +237,12 @@ func StringInArray(str string, array []string) bool {
 // Remote components (document.json#/Foo) are supported if they present in --import-mapping
 // URL components (http://deepmap.com/schemas/document.json#/Foo) are supported if they present in --import-mapping
 // Remote and URL also support standard local paths even though the spec doesn't mention them.
-func RefPathToGoType(refPath string) (string, error) {
-	return refPathToGoType(refPath, true)
+func RefPathToGoType(refPath string, outputDir string) (string, error) {
+	return refPathToGoType(refPath, true, outputDir)
 }
 
 // refPathToGoType returns the Go typename for refPath given its
-func refPathToGoType(refPath string, local bool) (string, error) {
+func refPathToGoType(refPath string, local bool, outputDir string) (string, error) {
 	if refPath[0] == '#' {
 		pathParts := strings.Split(refPath, "/")
 		depth := len(pathParts)
@@ -261,9 +274,93 @@ func refPathToGoType(refPath string, local bool) (string, error) {
 	}
 	remoteComponent, flatComponent := pathParts[0], pathParts[1]
 	if goImport, ok := importMapping[remoteComponent]; !ok {
+		// Step1: try to resolve path to .yml file
+
+		if _, err := os.Stat(remoteComponent); errors.Is(err, os.ErrNotExist) {
+			return "", fmt.Errorf("unsupported reference: %s", refPath)
+		}
+
+		// Step2: If file exists, use it as a local path
+		dirs, err := ioutil.ReadDir(outputDir)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fileExists := false
+		for _, dir := range dirs {
+			if dir.IsDir() {
+				continue
+			}
+			if strings.HasSuffix(dir.Name(), ".gen.go") {
+				fileExists = true
+				break
+			}
+		}
+
+		if !fileExists {
+			swagger, err := util.LoadSwagger(remoteComponent)
+			if err != nil {
+				errExit("error loading swagger spec in %s\n: %s", flag.Arg(0), err)
+			}
+
+			//Generate code with default configurations, check later if the behavior is correct
+			code, err := codegen.Generate(swagger, globalState.options)
+			if err != nil {
+				errExit("error generating code: %s\n", err)
+			}
+
+			err = ioutil.WriteFile(filepath.Join(outputDir, strings.TrimSuffix(remoteComponent, filepath.Ext(remoteComponent)), "entities.gen.go"), []byte(code), 0644)
+			if err != nil {
+				errExit("error writing generated code to file: %s", err)
+			}
+
+			importMapString := map[string]string{
+				remoteComponent: filepath.Join(outputDir, strings.TrimSuffix(remoteComponent, filepath.Ext(remoteComponent))),
+			}
+
+			newImportMap := constructImportMapping(importMapString)
+
+			//Add the new mapping values to the gloabl importMapping object after the entities.gen.go file is created
+			for k, v := range newImportMap {
+				importMapping[k] = v
+			}
+
+			//Add the reference to the output file
+
+			goType, err := refPathToGoType("#"+flatComponent, false, outputDir)
+			if err != nil {
+				return "", err
+			}
+			return fmt.Sprintf("%s.%s", newImportMap[remoteComponent].Name, goType), nil
+
+		} else {
+			// Step3: Parse remoteComponent and return it / check for further refs
+			// If file exists we add it directly to the global import mapping object
+
+			log.Printf("%s already exists, skipping generation", outputDir)
+
+			importMapString := map[string]string{
+				remoteComponent: filepath.Join(outputDir, strings.TrimSuffix(remoteComponent, filepath.Ext(remoteComponent))),
+			}
+
+			newImportMap := constructImportMapping(importMapString)
+
+			//Add the new mapping values to the gloabl importMapping object after the entities.gen.go file is created
+			for k, v := range newImportMap {
+				importMapping[k] = v
+			}
+
+			//Add the reference to the output file
+
+			goType, err := refPathToGoType("#"+flatComponent, false, outputDir)
+			if err != nil {
+				return "", err
+			}
+			return fmt.Sprintf("%s.%s", newImportMap[remoteComponent].Name, goType), nil
+		}
 		return "", fmt.Errorf("unrecognized external reference '%s'; please provide the known import for this reference using option --import-mapping", remoteComponent)
 	} else {
-		goType, err := refPathToGoType("#"+flatComponent, false)
+		goType, err := refPathToGoType("#"+flatComponent, false, outputDir)
 		if err != nil {
 			return "", err
 		}
