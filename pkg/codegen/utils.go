@@ -274,8 +274,8 @@ func refPathToGoType(refPath string, local bool, outputDir string) (string, erro
 	if goImport, ok := importMapping[remoteComponent]; !ok {
 		// Step1: try to resolve path to .yml file
 
-		if _, err := os.Stat(remoteComponent); errors.Is(err, os.ErrNotExist) {
-			return "", fmt.Errorf("unsupported reference: %s", refPath)
+		if _, err := os.Stat(filepath.Join("openapi", remoteComponent)); errors.Is(err, os.ErrNotExist) {
+			return "", fmt.Errorf("can't find the .yml file containing the remote Component: %s", remoteComponent)
 		}
 
 		// Step2: If file exists, use it as a local path
