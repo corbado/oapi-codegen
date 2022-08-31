@@ -29,7 +29,6 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/corbado/oapi-codegen/pkg/codegen"
 	"github.com/corbado/oapi-codegen/pkg/util"
 	"github.com/getkin/kin-openapi/openapi3"
 )
@@ -304,7 +303,7 @@ func refPathToGoType(refPath string, local bool, outputDir string) (string, erro
 			}
 
 			//Generate code with default configurations, check later if the behavior is correct
-			code, err := codegen.Generate(swagger, globalState.options)
+			code, err := Generate(swagger, globalState.options, outputDir)
 			if err != nil {
 				errExit("error generating code: %s\n", err)
 			}
