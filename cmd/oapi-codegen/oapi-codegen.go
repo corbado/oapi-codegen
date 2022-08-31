@@ -88,7 +88,7 @@ func main() {
 	flag.StringVar(&flagPackageName, "package", "", "The package name for generated code")
 
 	flag.BoolVar(&flagDynamic, "dynamic", false, "Whether to generate code via dynamic path resolving")
-	flag.StringVar(&flagOutputDir, "--output-dir", "", "The output directory for all generated code files")
+	flag.StringVar(&flagOutputDir, "output-dir", "", "The output directory for all generated code files")
 
 	// All flags below are deprecated, and will be removed in a future release. Please do not
 	// update their behavior.
