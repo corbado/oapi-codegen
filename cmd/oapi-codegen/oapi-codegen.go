@@ -172,6 +172,8 @@ func main() {
 		return
 	}
 
+	fmt.Println("SWAGGER")
+	fmt.Println("READING FILE", flag.Arg(0))
 	swagger, err := util.LoadSwagger(flag.Arg(0))
 	if err != nil {
 		errExit("error loading swagger spec in %s\n: %s", flag.Arg(0), err)
