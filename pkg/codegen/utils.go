@@ -240,6 +240,7 @@ func RefPathToGoType(refPath string, outputDir string) (string, error) {
 
 // refPathToGoType returns the Go typename for refPath given its
 func refPathToGoType(refPath string, local bool, outputDir string) (string, error) {
+	fmt.Println("refPathToGoType", refPath)
 	if refPath[0] == '#' {
 		pathParts := strings.Split(refPath, "/")
 		depth := len(pathParts)
