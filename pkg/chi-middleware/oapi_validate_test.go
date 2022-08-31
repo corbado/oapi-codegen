@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/deepmap/oapi-codegen/pkg/testutil"
+	"github.com/corbado/oapi-codegen/pkg/testutil"
 )
 
 //go:embed test_spec.yaml
@@ -85,7 +85,7 @@ func TestOapiRequestValidatorWithOptionsMultiError(t *testing.T) {
 
 	// Let's send a good request, it should pass
 	{
-		rec := doGet(t, r, "http://deepmap.ai/multiparamresource?id=50&id2=50")
+		rec := doGet(t, r, "http://corbado.ai/multiparamresource?id=50&id2=50")
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.True(t, called, "Handler should have been called")
 		called = false
@@ -94,7 +94,7 @@ func TestOapiRequestValidatorWithOptionsMultiError(t *testing.T) {
 	// Let's send a request with a missing parameter, it should return
 	// a bad status
 	{
-		rec := doGet(t, r, "http://deepmap.ai/multiparamresource?id=50")
+		rec := doGet(t, r, "http://corbado.ai/multiparamresource?id=50")
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 		body, err := ioutil.ReadAll(rec.Body)
 		if assert.NoError(t, err) {
@@ -108,7 +108,7 @@ func TestOapiRequestValidatorWithOptionsMultiError(t *testing.T) {
 	// Let's send a request with a 2 missing parameters, it should return
 	// a bad status
 	{
-		rec := doGet(t, r, "http://deepmap.ai/multiparamresource")
+		rec := doGet(t, r, "http://corbado.ai/multiparamresource")
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 		body, err := ioutil.ReadAll(rec.Body)
 		if assert.NoError(t, err) {
@@ -124,7 +124,7 @@ func TestOapiRequestValidatorWithOptionsMultiError(t *testing.T) {
 	// Let's send a request with a 1 missing parameter, and another outside
 	// or the parameters. It should return a bad status
 	{
-		rec := doGet(t, r, "http://deepmap.ai/multiparamresource?id=500")
+		rec := doGet(t, r, "http://corbado.ai/multiparamresource?id=500")
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 		body, err := ioutil.ReadAll(rec.Body)
 		if assert.NoError(t, err) {
@@ -140,7 +140,7 @@ func TestOapiRequestValidatorWithOptionsMultiError(t *testing.T) {
 	// Let's send a request with a parameters that do not meet spec. It should
 	// return a bad status
 	{
-		rec := doGet(t, r, "http://deepmap.ai/multiparamresource?id=abc&id2=1")
+		rec := doGet(t, r, "http://corbado.ai/multiparamresource?id=abc&id2=1")
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 		body, err := ioutil.ReadAll(rec.Body)
 		if assert.NoError(t, err) {
@@ -187,7 +187,7 @@ func TestOapiRequestValidatorWithOptionsMultiErrorAndCustomHandler(t *testing.T)
 
 	// Let's send a good request, it should pass
 	{
-		rec := doGet(t, r, "http://deepmap.ai/multiparamresource?id=50&id2=50")
+		rec := doGet(t, r, "http://corbado.ai/multiparamresource?id=50&id2=50")
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.True(t, called, "Handler should have been called")
 		called = false
@@ -196,7 +196,7 @@ func TestOapiRequestValidatorWithOptionsMultiErrorAndCustomHandler(t *testing.T)
 	// Let's send a request with a missing parameter, it should return
 	// a bad status
 	{
-		rec := doGet(t, r, "http://deepmap.ai/multiparamresource?id=50")
+		rec := doGet(t, r, "http://corbado.ai/multiparamresource?id=50")
 		assert.Equal(t, http.StatusTeapot, rec.Code)
 		body, err := ioutil.ReadAll(rec.Body)
 		if assert.NoError(t, err) {
@@ -210,7 +210,7 @@ func TestOapiRequestValidatorWithOptionsMultiErrorAndCustomHandler(t *testing.T)
 	// Let's send a request with a 2 missing parameters, it should return
 	// a bad status
 	{
-		rec := doGet(t, r, "http://deepmap.ai/multiparamresource")
+		rec := doGet(t, r, "http://corbado.ai/multiparamresource")
 		assert.Equal(t, http.StatusTeapot, rec.Code)
 		body, err := ioutil.ReadAll(rec.Body)
 		if assert.NoError(t, err) {
@@ -226,7 +226,7 @@ func TestOapiRequestValidatorWithOptionsMultiErrorAndCustomHandler(t *testing.T)
 	// Let's send a request with a 1 missing parameter, and another outside
 	// or the parameters. It should return a bad status
 	{
-		rec := doGet(t, r, "http://deepmap.ai/multiparamresource?id=500")
+		rec := doGet(t, r, "http://corbado.ai/multiparamresource?id=500")
 		assert.Equal(t, http.StatusTeapot, rec.Code)
 		body, err := ioutil.ReadAll(rec.Body)
 		if assert.NoError(t, err) {
@@ -242,7 +242,7 @@ func TestOapiRequestValidatorWithOptionsMultiErrorAndCustomHandler(t *testing.T)
 	// Let's send a request with a parameters that do not meet spec. It should
 	// return a bad status
 	{
-		rec := doGet(t, r, "http://deepmap.ai/multiparamresource?id=abc&id2=1")
+		rec := doGet(t, r, "http://corbado.ai/multiparamresource?id=abc&id2=1")
 		assert.Equal(t, http.StatusTeapot, rec.Code)
 		body, err := ioutil.ReadAll(rec.Body)
 		if assert.NoError(t, err) {
@@ -296,7 +296,7 @@ func TestOapiRequestValidatorWithOptions(t *testing.T) {
 
 	// Call a protected function to which we have access
 	{
-		rec := doGet(t, r, "http://deepmap.ai/protected_resource")
+		rec := doGet(t, r, "http://corbado.ai/protected_resource")
 		assert.Equal(t, http.StatusNoContent, rec.Code)
 		assert.True(t, called, "Handler should have been called")
 		called = false
@@ -308,7 +308,7 @@ func TestOapiRequestValidatorWithOptions(t *testing.T) {
 	})
 	// Call a protected function to which we dont have access
 	{
-		rec := doGet(t, r, "http://deepmap.ai/protected_resource2")
+		rec := doGet(t, r, "http://corbado.ai/protected_resource2")
 		assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		assert.False(t, called, "Handler should not have been called")
 		called = false
@@ -320,7 +320,7 @@ func TestOapiRequestValidatorWithOptions(t *testing.T) {
 	})
 	// Call a protected function without credentials
 	{
-		rec := doGet(t, r, "http://deepmap.ai/protected_resource_401")
+		rec := doGet(t, r, "http://corbado.ai/protected_resource_401")
 		assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		assert.Equal(t, "test: Security requirements failed\n", rec.Body.String())
 		assert.False(t, called, "Handler should not have been called")
@@ -341,14 +341,14 @@ func testRequestValidatorBasicFunctions(t *testing.T, r *chi.Mux) {
 
 	// Let's send the request to the wrong server, this should fail validation
 	{
-		rec := doGet(t, r, "http://not.deepmap.ai/resource")
+		rec := doGet(t, r, "http://not.corbado.ai/resource")
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 		assert.False(t, called, "Handler should not have been called")
 	}
 
 	// Let's send a good request, it should pass
 	{
-		rec := doGet(t, r, "http://deepmap.ai/resource")
+		rec := doGet(t, r, "http://corbado.ai/resource")
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.True(t, called, "Handler should have been called")
 		called = false
@@ -356,7 +356,7 @@ func testRequestValidatorBasicFunctions(t *testing.T, r *chi.Mux) {
 
 	// Send an out-of-spec parameter
 	{
-		rec := doGet(t, r, "http://deepmap.ai/resource?id=500")
+		rec := doGet(t, r, "http://corbado.ai/resource?id=500")
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 		assert.False(t, called, "Handler should not have been called")
 		called = false
@@ -364,7 +364,7 @@ func testRequestValidatorBasicFunctions(t *testing.T, r *chi.Mux) {
 
 	// Send a bad parameter type
 	{
-		rec := doGet(t, r, "http://deepmap.ai/resource?id=foo")
+		rec := doGet(t, r, "http://corbado.ai/resource?id=foo")
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 		assert.False(t, called, "Handler should not have been called")
 		called = false
@@ -384,7 +384,7 @@ func testRequestValidatorBasicFunctions(t *testing.T, r *chi.Mux) {
 		}{
 			Name: "Marcin",
 		}
-		rec := doPost(t, r, "http://deepmap.ai/resource", body)
+		rec := doPost(t, r, "http://corbado.ai/resource", body)
 		assert.Equal(t, http.StatusNoContent, rec.Code)
 		assert.True(t, called, "Handler should have been called")
 		called = false
@@ -397,7 +397,7 @@ func testRequestValidatorBasicFunctions(t *testing.T, r *chi.Mux) {
 		}{
 			Name: 7,
 		}
-		rec := doPost(t, r, "http://deepmap.ai/resource", body)
+		rec := doPost(t, r, "http://corbado.ai/resource", body)
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 		assert.False(t, called, "Handler should not have been called")
 		called = false

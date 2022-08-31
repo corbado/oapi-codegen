@@ -5,7 +5,7 @@ info:
   license:
     name: MIT
 servers:
-  - url: http://openapitest.deepmap.ai
+  - url: http://openapitest.corbado.ai
 paths:
   /response-with-reference:
     get:

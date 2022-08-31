@@ -9,8 +9,8 @@ import (
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/labstack/echo/v4"
 
-	"github.com/deepmap/oapi-codegen/examples/authenticated-api/echo/api"
-	"github.com/deepmap/oapi-codegen/pkg/middleware"
+	"github.com/corbado/oapi-codegen/examples/authenticated-api/echo/api"
+	"github.com/corbado/oapi-codegen/pkg/middleware"
 )
 
 type server struct {

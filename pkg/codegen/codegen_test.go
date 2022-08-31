@@ -10,14 +10,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/deepmap/oapi-codegen/pkg/util"
+	"github.com/corbado/oapi-codegen/pkg/util"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/golangci/lint-1"
 	"github.com/stretchr/testify/assert"
 
-	examplePetstoreClient "github.com/deepmap/oapi-codegen/examples/petstore-expanded"
-	examplePetstore "github.com/deepmap/oapi-codegen/examples/petstore-expanded/echo/api"
+	examplePetstoreClient "github.com/corbado/oapi-codegen/examples/petstore-expanded"
+	examplePetstore "github.com/corbado/oapi-codegen/examples/petstore-expanded/echo/api"
 )
 
 func checkLint(t *testing.T, filename string, code []byte) {

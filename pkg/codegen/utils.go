@@ -1,4 +1,4 @@
-// Copyright 2019 DeepMap, Inc.
+// Copyright 2019 Corbado, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -234,7 +234,7 @@ func StringInArray(str string, array []string) bool {
 // #/components/parameters/Bar -> Bar
 // #/components/responses/Baz -> Baz
 // Remote components (document.json#/Foo) are supported if they present in --import-mapping
-// URL components (http://deepmap.com/schemas/document.json#/Foo) are supported if they present in --import-mapping
+// URL components (http://corbado.com/schemas/document.json#/Foo) are supported if they present in --import-mapping
 // Remote and URL also support standard local paths even though the spec doesn't mention them.
 func RefPathToGoType(refPath string, outputDir string) (string, error) {
 	return refPathToGoType(refPath, true, outputDir)
@@ -381,8 +381,8 @@ func IsGoTypeReference(ref string) bool {
 // #/components/schemas/Foo                             -> false
 // ./local/file.yml#/components/parameters/Bar          -> false
 // ./local/file.yml                                     -> true
-// http://deepmap.com/schemas/document.json             -> true
-// http://deepmap.com/schemas/document.json#/Foo        -> false
+// http://corbado.com/schemas/document.json             -> true
+// http://corbado.com/schemas/document.json#/Foo        -> false
 func IsWholeDocumentReference(ref string) bool {
 	return ref != "" && !strings.ContainsAny(ref, "#")
 }

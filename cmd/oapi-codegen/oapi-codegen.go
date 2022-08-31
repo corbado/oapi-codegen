@@ -1,4 +1,4 @@
-// Copyright 2019 DeepMap, Inc.
+// Copyright 2019 Corbado, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,10 +22,9 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"gopkg.in/yaml.v2"
-
 	"github.com/corbado/oapi-codegen/pkg/codegen"
 	"github.com/corbado/oapi-codegen/pkg/util"
+	"gopkg.in/yaml.v2"
 )
 
 func errExit(format string, args ...interface{}) {
